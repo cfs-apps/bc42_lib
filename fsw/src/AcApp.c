@@ -107,6 +107,7 @@ void AllocateAC(struct AcType *AC)
 
 
 }
+#endif /*~bc~*/
 /**********************************************************************/
 void InitAC(struct AcType *AC)
 {
@@ -117,7 +118,7 @@ void InitAC(struct AcType *AC)
       /* Controllers */
       AC->CfsCtrl.Init = 1;      
 }
-#endif
+/*~bc~ #endif */
 /**********************************************************************/
 /*  Some Simple Sensor Processing Functions                           */
 /*  corresponding to the Sensor Models in 42sensors.c                 */
@@ -412,7 +413,7 @@ void AcFsw(struct AcType *AC)
          G->MaxAngRate[0] = 1.0*D2R;
          G->MaxTrq[0] = 10.0;
       }
-
+#ifdef _AC_STANDALONE_  /* ~bc~ BC42_INTF calls sensor processing functions */
 /* .. Sensor Processing */
       GyroProcessing(AC);
       MagnetometerProcessing(AC);
@@ -420,7 +421,8 @@ void AcFsw(struct AcType *AC)
       FssProcessing(AC);
       StarTrackerProcessing(AC);
       GpsProcessing(AC);
-      
+#endif  /* ~bc~ End Basecamp exclusion */      
+ 
 /* .. Commanded Attitude */
       if (AC->GPS[0].Valid) {
          CopyUnitV(AC->PosN,L3);
@@ -483,9 +485,11 @@ void AcFsw(struct AcType *AC)
       G->Cmd.AngRate[0] = -G->AngGain[0]/G->AngRateGain[0]*AngErr;
       G->Cmd.AngRate[0] = Limit(G->Cmd.AngRate[0],-G->MaxAngRate[0],G->MaxAngRate[0]);
       
+#ifdef _AC_STANDALONE_  /* ~bc~ BC42_INTF calls sensor processing functions */
 /* .. Actuator Processing */
       WheelProcessing(AC);
       MtbProcessing(AC);
+#endif  /* ~bc~ End Basecamp exclusion */ 
 }
 #ifdef _AC_STANDALONE_
 /**********************************************************************/

@@ -11,6 +11,6 @@ include_directories(${CFEPSP_SOURCE_DIR}/fsw/inc)
 aux_source_directory(fsw/src LIB_SRC_FILES)
 
 # Create the app module
-add_cfe_app(BC42_lib ${LIB_SRC_FILES})
-target_link_libraries (BC42_lib m)
+add_cfe_app(bc42_lib ${LIB_SRC_FILES})
+target_link_libraries (bc42_lib m)
 

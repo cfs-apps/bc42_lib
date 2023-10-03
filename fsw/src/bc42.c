@@ -101,19 +101,6 @@ int32 BC42_Constructor(void)
 
 
 /******************************************************************************
-** Function: BC42_TakePtr
-**
-*/
-BC42_Class_t *BC42_TakePtr(void)
-{
-   
-   OS_MutSemTake(Bc42.MutexId); 
-   
-   return  &Bc42;
- 
-}
-
-/******************************************************************************
 ** Function: BC42_GivePtr
 **
 */
@@ -122,7 +109,7 @@ void BC42_GivePtr(BC42_Class_t *Bc)
 
    OS_MutSemGive(Bc->MutexId);
 
-}
+} /* End BC42_GivePtr() */
 
 
 /******************************************************************************
@@ -153,9 +140,11 @@ int32 BC42_ReadFromSocket(osal_id_t SocketId, OS_SockAddr_t *RemoteAddr, struct 
       long Month,Day;
       
       memset(Msg,'\0',16384);
-      //~bc~ NumBytes = recv(Socket,Msg,16384,0);
-      NumBytes = OS_SocketRecvFrom(SocketId, Msg, 16384, RemoteAddr, OS_PEND); //~bc~
-      
+      NumBytes = OS_read(SocketId, Msg, 16384);
+      //~bc~ NumBytes = OS_SocketRecvFrom(SocketId, Msg, 16384, RemoteAddr, OS_PEND); 
+
+      CFE_EVS_SendEvent(999, CFE_EVS_EventType_INFORMATION, "**** BC42_ReadFromSocket() read %d bytes", NumBytes);
+  
       //~bc~ if (NumBytes <= 0) return; /* Bail out if no message */
       if (NumBytes <= 0) return -1; //~bc~
 
@@ -1445,6 +1434,19 @@ int32 BC42_ReadFromSocket(osal_id_t SocketId, OS_SockAddr_t *RemoteAddr, struct 
 } /* End BC42_ReadFromSocket() */
 
 
+/******************************************************************************
+** Function: BC42_TakePtr
+**
+*/
+BC42_Class_t *BC42_TakePtr(void)
+{
+   
+   OS_MutSemTake(Bc42.MutexId); 
+   
+   return  &Bc42;
+ 
+} /* End BC42_TakePtr() */
+
 
 /******************************************************************************
 ** Function: BC42_WriteToSocket
@@ -2487,11 +2489,11 @@ void BC42_WriteToSocket(osal_id_t SocketId, OS_SockAddr_t *RemoteAddr, struct Ac
       memcpy(&Msg[MsgLen],line,LineLen);
       MsgLen += LineLen;
       //~bc~ send(Socket,Msg,MsgLen,0);
-      OS_SocketSendTo(SocketId, Msg, MsgLen, RemoteAddr);//~bc~
+      OS_write(SocketId, Msg, MsgLen);
      
       /* Wait for Ack */
       //~bc~ recv(Socket,AckMsg,5,0);
-      OS_SocketRecvFrom(SocketId, AckMsg, 5, RemoteAddr, 1000); //~bc~ TODO: What is timeout units? What is return status if timeout?
+      OS_read(SocketId, AckMsg, 5);
       
 } /* End BC42_WriteToSocket() */
 

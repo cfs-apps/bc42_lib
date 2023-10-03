@@ -152,13 +152,6 @@ int32 BC42_Constructor(void);
 
 
 /******************************************************************************
-** Function: BC42_TakePtr
-**
-*/
-BC42_Class_t *BC42_TakePtr(void);
-
-
-/******************************************************************************
 ** Function: BC42_GivePtr
 **
 */
@@ -170,6 +163,13 @@ void BC42_GivePtr(BC42_Class_t *Bc42);
 **
 */
 int32 BC42_ReadFromSocket(osal_id_t SocketId, OS_SockAddr_t *RemoteAddr, struct AcType *AC);
+
+
+/******************************************************************************
+** Function: BC42_TakePtr
+**
+*/
+BC42_Class_t *BC42_TakePtr(void);
 
 
 /******************************************************************************
