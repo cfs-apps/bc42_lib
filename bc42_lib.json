@@ -1,0 +1,31 @@
+{
+
+   "app": {
+   
+   "title": "BC42_LIB",
+   "version": "1.0.0",
+   "supplier": "Open STEMware",
+   "copyright": "bitValence",
+   "url": "https://github.com/cfs-apps/bc42_ctrl",
+
+   "description": [
+      "Contains library modules from 42 Simulator required by",
+      "the BC42_* apps."      
+   ],
+
+   "cfs": {
+      "cfe-type": "CFE_LIB",
+      "obj-file": "bc42_lib",
+      "entry-symbol": "BC42_LIB_LibInit",
+      "name": "BC42_LIB",
+      "priority": 0,
+      "stack": 0,
+      "load_addr": 0,
+      "exception-action": 0,
+      "app-framework": "osk",
+      "tables": []
+   },
+
+   "requires": ["app_c_fw"]
+
+}}
