@@ -1,3 +1,5 @@
+// See ~bc42 comments for Basecamp changes
+#define _AC_STANDALONE_ 1
 /*    This file is distributed with 42,                               */
 /*    the (mostly harmless) spacecraft dynamics simulation            */
 /*    created by Eric Stoneking of NASA Goddard Space Flight Center   */
@@ -104,6 +106,7 @@ void AllocateAcBufs(struct AcIpcType *I)
       I->AcOutBuf = (char *) calloc(I->AcOutBufLen,sizeof(char));
       I->AcTblBuf = (char *) calloc(I->AcTblBufLen,sizeof(char));
 }
+#endif //~bc42
 /**********************************************************************/
 void InitAC(struct AcType *AC)
 {
@@ -112,7 +115,7 @@ void InitAC(struct AcType *AC)
       /* Controllers */
       AC->CfsCtrl.Init = 1;      
 }
-#endif
+//~bc42: 
 /**********************************************************************/
 /*  Some Simple Sensor Processing Functions                           */
 /*  corresponding to the Sensor Models in 42sensors.c                 */
@@ -407,7 +410,7 @@ void AcFsw(struct AcType *AC)
          G->MaxAngRate[0] = 1.0*D2R;
          G->MaxTrq[0] = 10.0;
       }
-
+#ifdef _AC_STANDALONE_  /*~bc42~ BC42_INTF will call sensor processing functions */
 /* .. Sensor Processing */
       GyroProcessing(AC);
       MagnetometerProcessing(AC);
@@ -415,7 +418,7 @@ void AcFsw(struct AcType *AC)
       FssProcessing(AC);
       StarTrackerProcessing(AC);
       GpsProcessing(AC);
-      
+ #endif  /*~bc42~ End BC42_INTF exclusion */       
 /* .. Commanded Attitude */
       if (AC->GPS[0].Valid) {
          CopyUnitV(AC->PosN,L3);
@@ -477,10 +480,11 @@ void AcFsw(struct AcType *AC)
       if (AngErr < -AC->Pi) AngErr += AC->TwoPi;
       G->GCmd.AngRate[0] = -G->AngGain[0]/G->AngRateGain[0]*AngErr;
       G->GCmd.AngRate[0] = Limit(G->GCmd.AngRate[0],-G->MaxAngRate[0],G->MaxAngRate[0]);
-      
+#ifdef _AC_STANDALONE_  /*~bc42~ BC42_INTF will call actuator functions */      
 /* .. Actuator Processing */
       WheelProcessing(AC);
       MtbProcessing(AC);
+#endif  /*~bc42~ End BC42_INTF exclusion */   
 }
 #ifdef _AC_STANDALONE_
 /**********************************************************************/

@@ -16,14 +16,20 @@
 **    Define 42 library version number
 **
 **  Notes:
-**    1. Initial release from 42 version TBD (git clone on 9/5/2023)
+**    1. Initial release from 42 git clone on 9/9/25, hash tag 5e257bb
 **
 */
 #ifndef _bc42_lib_ver_h_
 #define _bc42_lib_ver_h_
 
-
-#define BC42_LIB_MAJOR_VER  1
+/******************************************************************************
+** Versions
+**
+** 1.0 - Initial Basecamp release created from OpenSatKit and upgraded to the
+**       latest 42 version
+** 2.0 - Updated 42 versions on 9/5/25
+*/
+#define BC42_LIB_MAJOR_VER  2
 #define BC42_LIB_MINOR_VER  0
 #define BC42_LIB_LOCAL_REV  0
 

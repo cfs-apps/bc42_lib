@@ -13,15 +13,15 @@
 **  GNU Affero General Public License for more details.
 **
 **  Purpose:
-**    Provide a 42 AcType wrapper object
+**    Provide a 42 AcApp wrapper object
 **
 **  Notes:
-**    1. BC42_TakePtr() must be called prior to using either 
-**       BC42_ReadFromSocket() or BC42_WriteToSocket() and BC42_GivePtr()
-**       must be called after the Socket function calls. The Ptr functions
-**       are not embedded within the Socket functions to allow the caller
-**       the flexibility to work with the pointer while they're working
-**       with the socket data.
+**    1. The make system must define _AC_STANDALONE_
+**    2. 42 function names don't follow cFS/Basecamp naming conventions of
+**       prefixing global names with object's name. but the chance of a name
+**       clash are slim and a porting goal was to minimize any changes to
+**       the 42 code so the names have not been changed.
+**    3. bc42.c's prologue for more information.  
 **
 */
 #ifndef _bc42_
@@ -31,7 +31,8 @@
 ** Includes
 */
 
-#include "Ac.h"
+#include "42defines.h"
+#include "42types.h"
 
 
 /***********************/
@@ -40,65 +41,20 @@
 
 #define BC42_MUTEX_NAME "BC42"
 
-/*
-** 42 AcApp dimensions
-*/
-
-/* Dynamics */
-#define BC42_NB 2
-#define BC42_NG 1
-
-/* Sensors */
-#define BC42_NGYRO 3
-#define BC42_NMAG  3
-#define BC42_NCSS  8
-#define BC42_NFSS  1
-#define BC42_NST   1
-#define BC42_NGPS  1
-
-/* Actuators */
-#define BC42_NWHL 4  // TODO: Use EDS for single source definitions
-#define BC42_NMTB 3
-#define BC42_NTHR 2  // Should be zero, but can't have a zero dimension
-
 
 /**********************/
 /** Type Definitions **/
 /**********************/
 
-/******************************************************************************
-** BC42_Struct
-**
-** Define fixed sized structure for 42's actypes that are dynamically allocated.
-** Keep naming consistent with 42. 
-*/
+typedef struct AcType BC42_Ac_t;
 
 typedef struct
 {
-
-   /* Dynamics */
+   double Kr[3];
+   double Kp[3];
+   double Kunl;
    
-   struct AcBodyType   B[BC42_NB];
-   struct AcJointType  G[BC42_NG];
-
-   /* Sensors */
-
-   struct AcGyroType          Gyro[BC42_NGYRO];
-   struct AcMagnetometerType  MAG[BC42_NMAG];
-   struct AcCssType           CSS[BC42_NCSS];
-   struct AcFssType           FSS[BC42_NFSS];
-   struct AcStarTrackerType   ST[BC42_NST];
-   struct AcGpsType           GPS[BC42_NGPS];
-
-
-   /* Actuators */
-
-   struct AcWhlType  Whl[BC42_NWHL];
-   struct AcMtbType  MTB[BC42_NMTB];
-   struct AcThrType  Thr[BC42_NTHR];
-
-
-} BC42_VarStruct_t;
+} BC42_CtrlGains_t;
 
 
 /******************************************************************************
@@ -107,9 +63,9 @@ typedef struct
 typedef struct
 {
 
-   BC42_VarStruct_t  BcVar;
-   struct AcType     AcVar;
-
+   struct AcType    Ac;
+   struct AcIpcType AcIpc;
+   
    uint32  MutexId;
    
 } BC42_Class_t;
@@ -120,12 +76,14 @@ typedef struct
 /************************/
 
 /******************************************************************************
-** Function protoypes for 42's AcApp.c which is used as Basecamp's example FSW
-** app. The function names don't follow cFS/Basecamp naming conventions but the
-** chance of a name clash are slim and a porting goal was to minimize any
-** changes to the 42 code so the names have not been changed.
+** Function protoypes for 42's AcApp.c 
 **
 */
+
+void AllocateAC(struct AcType *AC);
+void AllocateAcBufs(struct AcIpcType *I);
+void InitAC(struct AcType *AC);
+void AcFsw(struct AcType *AC);
 
 void GyroProcessing(struct AcType *AC);
 void MagnetometerProcessing(struct AcType *AC);
@@ -137,8 +95,16 @@ void GpsProcessing(struct AcType *AC);
 void WheelProcessing(struct AcType *AC);
 void MtbProcessing(struct AcType *AC);
 
-void InitAC(struct AcType *AC);
-void AcFsw(struct AcType *AC);
+
+/******************************************************************************
+** Function protoypes for 42's AcIPC.c 
+**
+*/
+void ReadAcArraySizesFromSocket(struct AcType *AC, struct AcIpcType *I);
+void ReadAcBufLensFromSocket(struct AcIpcType *I);
+void ReadAcInFromSocket(struct AcType *AC,struct AcIpcType *I);
+void ReadAcTblFromSocket(struct AcType *AC,struct AcIpcType *I);
+void WriteAcOutToSocket(struct AcType *AC,struct AcIpcType *I);
 
 
 /******************************************************************************
@@ -152,31 +118,59 @@ int32 BC42_Constructor(void);
 
 
 /******************************************************************************
-** Function: BC42_GivePtr
+** Function: BC42_GetCOntrolGains
 **
 */
-void BC42_GivePtr(BC42_Class_t *Bc42);
+void BC42_GetControlGains(BC42_CtrlGains_t *CtrlGains);
 
 
 /******************************************************************************
-** Function: BC42_ReadFromSocket
+** Function: BC42_ReadSensorData
 **
 */
-int32 BC42_ReadFromSocket(osal_id_t SocketId, OS_SockAddr_t *RemoteAddr, struct AcType *AC);
+bool BC42_ReadSensorData(const BC42_Ac_t **Ac);
 
 
 /******************************************************************************
-** Function: BC42_TakePtr
+** Function: BC42_SetControlGains
 **
 */
-BC42_Class_t *BC42_TakePtr(void);
+void BC42_SetControlGains(const BC42_CtrlGains_t *CtrlGains);
 
 
 /******************************************************************************
-** Function: BC42_WriteToSocket
+** Function: BC42_RunController
+**
+** AcApp's controller and return load Tcmd and Mcmd arrays.
+*/
+bool BC42_RunController(const BC42_Ac_t **Ac);
+
+
+/******************************************************************************
+** Function: BC42_StartSim
+**
+** Notes:
+**   1. Call AcApp's initialization functions to prepare for a sim with 42
 **
 */
-void BC42_WriteToSocket(osal_id_t SocketId, OS_SockAddr_t *RemoteAddr, struct AcType *AC);
+bool BC42_StartSim(uint16 Port);
+
+
+/******************************************************************************
+** Function: BC42_StopSim
+**
+** Notes:
+**   1. Close 42 socket
+**
+*/
+bool BC42_StopSim(void);
+
+
+/******************************************************************************
+** Function: BC42_WriteActuatorData
+**
+*/
+bool BC42_WriteActuatorData(const double Tcmd[3], const double Mcmd[3], double SAcmd);
 
 
 #endif /*_bc42_*/

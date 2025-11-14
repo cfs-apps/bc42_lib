@@ -24,7 +24,6 @@
 **         42/Include
 **         42/Kit/
 **         42/Source
-**
 **   2. This library is used by the BC42_INTF and BC42_CTRL apps. Effort has
 **      been made to minimize changes to the 42 source files. All changes are
 **      marked with a "~bc~" tag in a comment. 
