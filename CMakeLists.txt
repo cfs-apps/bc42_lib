@@ -1,5 +1,7 @@
 project(CFS_BC42_LIB C)
 
+add_definitions(-D_AC_STANDALONE_)
+
 include_directories(fsw/src)
 include_directories(fsw/app_inc)
 
