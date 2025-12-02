@@ -66,6 +66,8 @@ typedef struct
    struct AcType    Ac;
    struct AcIpcType AcIpc;
    
+   BC42_CtrlGains_t DefaultCtrlGains;
+   
    uint32  MutexId;
    
 } BC42_Class_t;
@@ -132,10 +134,10 @@ bool BC42_ReadSensorData(const BC42_Ac_t **Ac);
 
 
 /******************************************************************************
-** Function: BC42_SetControlGains
+** Function: BC42_RestoreDefaultCtrlGains
 **
 */
-void BC42_SetControlGains(const BC42_CtrlGains_t *CtrlGains);
+void BC42_RestoreDefaultCtrlGains(void);
 
 
 /******************************************************************************
@@ -144,6 +146,13 @@ void BC42_SetControlGains(const BC42_CtrlGains_t *CtrlGains);
 ** AcApp's controller and return load Tcmd and Mcmd arrays.
 */
 bool BC42_RunController(const BC42_Ac_t **Ac);
+
+
+/******************************************************************************
+** Function: BC42_SetControlGains
+**
+*/
+void BC42_SetControlGains(const BC42_CtrlGains_t *CtrlGains);
 
 
 /******************************************************************************

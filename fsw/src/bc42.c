@@ -113,6 +113,19 @@ bool BC42_ReadSensorData(const BC42_Ac_t **Ac)
    
 } /* End BC42_ReadSensorData() */
 
+
+/******************************************************************************
+** Function: BC42_RestoreDefaultCtrlGains
+**
+*/
+void BC42_RestoreDefaultCtrlGains(void)
+{
+   
+   BC42_SetControlGains(&Bc42.DefaultCtrlGains);
+
+} /* End BC42_RestoreDefaultCtrlGains() */
+
+
 /******************************************************************************
 ** Function: BC42_RunController
 **
@@ -158,7 +171,9 @@ void BC42_SetControlGains(const BC42_CtrlGains_t *CtrlGains)
 ** Notes:
 **   1. Performs the same functions as 42's AcApp.c main() function prior to
 **      the inifinite control loop.
-**   2. TODO: What error checking should be done?
+**   2. Save default control gains so they can be restored. 42 derives the 
+**      gains during it's initialization.
+**   3. TODO: What error checking should be done?
 **
 */
 bool BC42_StartSim(uint16 Port)
@@ -180,9 +195,11 @@ bool BC42_StartSim(uint16 Port)
    AllocateAcBufs(AC_IPC);
    
    InitAC(AC);
-   
+
    ReadAcTblFromSocket(AC, AC_IPC);      
    
+   BC42_GetControlGains(&Bc42.DefaultCtrlGains);
+OS_print("Default Kunl %f\n",Bc42.DefaultCtrlGains.Kunl);
    return RetStatus;
    
 } /* End BC42_StartSim() */
@@ -228,4 +245,3 @@ bool BC42_WriteActuatorData(const double Tcmd[3], const double Mcmd[3], double S
    return RetStatus;
 
 } /* End BC42_WriteActuatorData() */
-
