@@ -199,7 +199,7 @@ bool BC42_StartSim(uint16 Port)
    ReadAcTblFromSocket(AC, AC_IPC);      
    
    BC42_GetControlGains(&Bc42.DefaultCtrlGains);
-OS_print("Default Kunl %f\n",Bc42.DefaultCtrlGains.Kunl);
+OS_printf("Default Kunl %f\n",Bc42.DefaultCtrlGains.Kunl);
    return RetStatus;
    
 } /* End BC42_StartSim() */
