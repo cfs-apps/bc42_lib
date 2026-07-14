@@ -28,12 +28,13 @@
 ** 1.0 - Initial Basecamp release created from OpenSatKit and upgraded to the
 **       latest 42 version
 ** 2.0 - Updated 42 versions on 9/5/25
-** 3.0 - Compatible with Basecamp 4.0 and cFS 7.0
+** 3.0 - Compatible with Basecamp 3.3 and cFS 6.8
+** 3.1 - Minor updates
 **
 */
 
 #define BC42_LIB_MAJOR_VER  3
-#define BC42_LIB_MINOR_VER  0
+#define BC42_LIB_MINOR_VER  1
 #define BC42_LIB_LOCAL_REV  0
 
       
