@@ -30,11 +30,12 @@
 ** 2.0 - Updated 42 versions on 9/5/25
 ** 3.0 - Compatible with Basecamp 3.3 and cFS 6.8
 ** 3.1 - Minor updates
+** 4.0 - Updated to cFS 7.0 (Basecamp 4.0 release)
 **
 */
 
-#define BC42_LIB_MAJOR_VER  3
-#define BC42_LIB_MINOR_VER  1
+#define BC42_LIB_MAJOR_VER  4
+#define BC42_LIB_MINOR_VER  0
 #define BC42_LIB_LOCAL_REV  0
 
       
